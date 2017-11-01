@@ -29,6 +29,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-4">
+                <a v-on:click="setFilter('show_all')" class="btn" :class="{active:filter === 'show_all'}">全部 ( {{allCount}} ) </a>
+                <a v-on:click="setFilter('show_completed')" class="btn" :class="{active:filter === 'show_completed'}">已完成 ( {{completedCount}} )</a>
+                <a v-on:click="setFilter('show_incomplete')" class="btn" :class="{active:filter === 'show_incomplete'}">未完成 ( {{incompleteCount}} )</a>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -97,19 +106,26 @@
             _getTodos:function(isCompleted){
                 var list = {};
 
-                list = Object.keys(this.todos).filter(function(value){
-                   return this.todos[value].isCompleted === isCompleted;
-                });
+                for(var index in this.todos){
+                    if(this.todos[index].isCompleted === isCompleted){
+                        list[index] = this.todos[index];
+                    }
+                }
                 return list;
+            },
+            setFilter:function(filter){
+                this.filter = filter;
             }
         },
         computed:{
             list:function(){
-//                if(this.filter === 'show_all'){
-//                    return this.todos;
-//                }else if(this.filter ==='show_compoleted'){
-//
-//                }
+                if(this.filter === 'show_all'){
+                    return this.todos;
+                }else if(this.filter ==='show_completed'){
+                    return this._getTodos(true);
+                }else{
+                    return this._getTodos(false);
+                }
                 return this.todos;
             },
             incompleteCount:function(){
@@ -117,6 +133,15 @@
 
                 return Object.keys(this.todos).filter(function(value){
                    return !_this.todos[value].isCompleted;
+                }).length;
+            },
+            allCount:function(){
+                return Object.keys(this.todos).length;
+            },
+            completedCount:function(){
+                var _this = this;
+                return Object.keys(this.todos).filter(function(value){
+                   return _this.todos[value].isCompleted
                 }).length;
             }
         }

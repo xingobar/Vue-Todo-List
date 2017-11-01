@@ -42865,6 +42865,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -42930,19 +42939,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         _getTodos: function _getTodos(isCompleted) {
             var list = {};
 
-            list = Object.keys(this.todos).filter(function (value) {
-                return this.todos[value].isCompleted === isCompleted;
-            });
+            for (var index in this.todos) {
+                if (this.todos[index].isCompleted === isCompleted) {
+                    list[index] = this.todos[index];
+                }
+            }
             return list;
+        },
+        setFilter: function setFilter(filter) {
+            this.filter = filter;
         }
     },
     computed: {
         list: function list() {
-            //                if(this.filter === 'show_all'){
-            //                    return this.todos;
-            //                }else if(this.filter ==='show_compoleted'){
-            //
-            //                }
+            if (this.filter === 'show_all') {
+                return this.todos;
+            } else if (this.filter === 'show_completed') {
+                return this._getTodos(true);
+            } else {
+                return this._getTodos(false);
+            }
             return this.todos;
         },
         incompleteCount: function incompleteCount() {
@@ -42950,6 +42966,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             return Object.keys(this.todos).filter(function (value) {
                 return !_this.todos[value].isCompleted;
+            }).length;
+        },
+        allCount: function allCount() {
+            return Object.keys(this.todos).length;
+        },
+        completedCount: function completedCount() {
+            var _this = this;
+            return Object.keys(this.todos).filter(function (value) {
+                return _this.todos[value].isCompleted;
             }).length;
         }
     }
@@ -43023,7 +43048,53 @@ var render = function() {
     _vm._v(" "),
     _vm.incompleteCount === 0 && _vm.filter === "show_all"
       ? _c("div", { staticClass: "row" }, [_vm._m(1)])
-      : _vm._e()
+      : _vm._e(),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-md-8 col-md-offset-4" }, [
+        _c(
+          "a",
+          {
+            staticClass: "btn",
+            class: { active: _vm.filter === "show_all" },
+            on: {
+              click: function($event) {
+                _vm.setFilter("show_all")
+              }
+            }
+          },
+          [_vm._v("全部 ( " + _vm._s(_vm.allCount) + " ) ")]
+        ),
+        _vm._v(" "),
+        _c(
+          "a",
+          {
+            staticClass: "btn",
+            class: { active: _vm.filter === "show_completed" },
+            on: {
+              click: function($event) {
+                _vm.setFilter("show_completed")
+              }
+            }
+          },
+          [_vm._v("已完成 ( " + _vm._s(_vm.completedCount) + " )")]
+        ),
+        _vm._v(" "),
+        _c(
+          "a",
+          {
+            staticClass: "btn",
+            class: { active: _vm.filter === "show_incomplete" },
+            on: {
+              click: function($event) {
+                _vm.setFilter("show_incomplete")
+              }
+            }
+          },
+          [_vm._v("未完成 ( " + _vm._s(_vm.incompleteCount) + " )")]
+        )
+      ])
+    ])
   ])
 }
 var staticRenderFns = [
