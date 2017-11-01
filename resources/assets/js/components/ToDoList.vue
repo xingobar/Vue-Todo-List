@@ -15,7 +15,7 @@
             <div class="col-md-8 col-md-offset-4">
                 <ul class="todo-list" >
                     <todo-list-item v-for="(todo,key,index) in list" :todo="todo"
-                                    :key="todo.uuid"
+                                    :key="todo.id"
                                 :index="key" :filter="filter" class="todo-item"
                                 v-on:remove="del(key)">
                     </todo-list-item>
@@ -49,46 +49,51 @@
         components:{
             'todo-list-item':TodoListItem
         },
+        props:['lists'],
         data() {
             return {
-                todos: {
-                    "a5436691-350c-4ed0-862e-c8abc8509a4a": {
-                        "uuid": "a5436691-350c-4ed0-862e-c8abc8509a4a",
-                        "text": "買一本好書",
-                        "isCompleted": false,
-                        "isEdit": false
-                    },
-                    "a98bf666-a710-43b2-81b2-60c68ec4688d": {
-                        "uuid": "a98bf666-a710-43b2-81b2-60c68ec4688d",
-                        "text": "打電話給小明",
-                        "isCompleted": true,
-                        "isEdit": false
-                    },
-                    "452ef417-033d-48ff-9fec-9d686c105dce": {
-                        "uuid": "452ef417-033d-48ff-9fec-9d686c105dce",
-                        "text": "寫一篇文章",
-                        "isCompleted": false,
-                        "isEdit": false
-                    }
-                },
+                todos:[],
                 newTodoText:'',
                 filter:'show_all'
             }
         },
 
+        mounted(){
+            this.todos = this.lists;
+            console.log(this.todos);
+        },
+
         methods:{
             add:function(){
-                var id = this._uuid();
+                //var id = this._uuid();
+                var id = this.todos[this.todos.length - 1].id;
 
-                Vue.set(this.todos,id,{
-                    uuid:id,
+                Vue.set(this.todos,this.todos.length,{
+                    id:id + 1,
                     text: this.newTodoText,
                     isCompleted:false,
                     isEdit:false
                 });
-                this.newTodoText = '';
+
+                axios.post('/create',{'text':this.newTodoText})
+                    .then((response) => {
+                        this.newTodoText = '';
+                        console.log(response.data);
+                    })
+                    .catch(function(error){
+                       console.log(error);
+                    });
             },
             del:function(index){
+
+                axios.post('/delete',{'id':this.todos[index].id})
+                    .then((response) => {
+                        console.log(response.data);
+                    })
+                    .catch(function(error){
+                        console.log(error);
+                    });
+
                 Vue.delete(this.todos,index);
             },
             _uuid:function(){
@@ -104,11 +109,12 @@
                 });
             },
             _getTodos:function(isCompleted){
-                var list = {};
+                var list = [];
 
                 for(var index in this.todos){
                     if(this.todos[index].isCompleted === isCompleted){
-                        list[index] = this.todos[index];
+                      //  list[index] = this.todos[index];
+                        list.push(this.todos[index]);
                     }
                 }
                 return list;
@@ -122,9 +128,9 @@
                 if(this.filter === 'show_all'){
                     return this.todos;
                 }else if(this.filter ==='show_completed'){
-                    return this._getTodos(true);
+                    return this._getTodos(1);
                 }else{
-                    return this._getTodos(false);
+                    return this._getTodos(0);
                 }
                 return this.todos;
             },

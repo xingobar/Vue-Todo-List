@@ -42882,47 +42882,49 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     components: {
         'todo-list-item': __WEBPACK_IMPORTED_MODULE_0__ToDoListItem_vue___default.a
     },
+    props: ['lists'],
     data: function data() {
         return {
-            todos: {
-                "a5436691-350c-4ed0-862e-c8abc8509a4a": {
-                    "uuid": "a5436691-350c-4ed0-862e-c8abc8509a4a",
-                    "text": "買一本好書",
-                    "isCompleted": false,
-                    "isEdit": false
-                },
-                "a98bf666-a710-43b2-81b2-60c68ec4688d": {
-                    "uuid": "a98bf666-a710-43b2-81b2-60c68ec4688d",
-                    "text": "打電話給小明",
-                    "isCompleted": true,
-                    "isEdit": false
-                },
-                "452ef417-033d-48ff-9fec-9d686c105dce": {
-                    "uuid": "452ef417-033d-48ff-9fec-9d686c105dce",
-                    "text": "寫一篇文章",
-                    "isCompleted": false,
-                    "isEdit": false
-                }
-            },
+            todos: [],
             newTodoText: '',
             filter: 'show_all'
         };
+    },
+    mounted: function mounted() {
+        this.todos = this.lists;
+        console.log(this.todos);
     },
 
 
     methods: {
         add: function add() {
-            var id = this._uuid();
+            var _this2 = this;
 
-            Vue.set(this.todos, id, {
-                uuid: id,
+            //var id = this._uuid();
+            var id = this.todos[this.todos.length - 1].id;
+
+            Vue.set(this.todos, this.todos.length, {
+                id: id + 1,
                 text: this.newTodoText,
                 isCompleted: false,
                 isEdit: false
             });
-            this.newTodoText = '';
+
+            axios.post('/create', { 'text': this.newTodoText }).then(function (response) {
+                _this2.newTodoText = '';
+                console.log(response.data);
+            }).catch(function (error) {
+                console.log(error);
+            });
         },
         del: function del(index) {
+
+            axios.post('/delete', { 'id': this.todos[index].id }).then(function (response) {
+                console.log(response.data);
+            }).catch(function (error) {
+                console.log(error);
+            });
+
             Vue.delete(this.todos, index);
         },
         _uuid: function _uuid() {
@@ -42937,11 +42939,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         },
         _getTodos: function _getTodos(isCompleted) {
-            var list = {};
+            var list = [];
 
             for (var index in this.todos) {
                 if (this.todos[index].isCompleted === isCompleted) {
-                    list[index] = this.todos[index];
+                    //  list[index] = this.todos[index];
+                    list.push(this.todos[index]);
                 }
             }
             return list;
@@ -42955,9 +42958,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (this.filter === 'show_all') {
                 return this.todos;
             } else if (this.filter === 'show_completed') {
-                return this._getTodos(true);
+                return this._getTodos(1);
             } else {
-                return this._getTodos(false);
+                return this._getTodos(0);
             }
             return this.todos;
         },
@@ -43032,7 +43035,7 @@ var render = function() {
           { staticClass: "todo-list" },
           _vm._l(_vm.list, function(todo, key, index) {
             return _c("todo-list-item", {
-              key: todo.uuid,
+              key: todo.id,
               staticClass: "todo-item",
               attrs: { todo: todo, index: key, filter: _vm.filter },
               on: {
@@ -43209,11 +43212,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         updateTodo: function updateTodo($event, todo) {
             if ($event.target.value) {
                 todo.text = $event.target.value;
+                axios.post('/edit', { 'id': todo.id, 'text': $event.target.value }).then(function (response) {
+                    console.log(response.data);
+                }).catch(function (error) {
+                    console.log(error);
+                });
             }
             todo.isEdit = !todo.isEdit;
         },
         updateStatus: function updateStatus(todo) {
             todo.isCompleted = !todo.isCompleted;
+
+            axios.post('/updateStatus', { 'id': todo.id, 'isCompleted': todo.isCompleted }).then(function (response) {
+                console.log(response.data);
+            }).catch(function (error) {
+                console.log(error);
+            });
         },
         editTodo: function editTodo(todo) {
             todo.isEdit = !todo.isEdit;

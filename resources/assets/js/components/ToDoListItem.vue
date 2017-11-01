@@ -26,11 +26,26 @@
                 if($event.target.value)
                 {
                     todo.text = $event.target.value;
+                    axios.post('/edit',{'id':todo.id,'text':$event.target.value})
+                        .then((response) => {
+                            console.log(response.data);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
                 }
                 todo.isEdit = !todo.isEdit;
             },
             updateStatus:function(todo){
                 todo.isCompleted = !todo.isCompleted;
+
+                axios.post('/updateStatus',{'id':todo.id,'isCompleted':todo.isCompleted})
+                    .then((response ) => {
+                        console.log(response.data);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
             },
             editTodo:function(todo){
                 todo.isEdit = !todo.isEdit;

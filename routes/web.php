@@ -18,3 +18,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/getTodoList','TodoListController@getAll');
+Route::post('/create','TodoListController@create');
+Route::post('/delete','TodoListController@delete');
+Route::post('/edit','TodoListController@edit');
+Route::post('/updateStatus','TodoListController@updateStatus');

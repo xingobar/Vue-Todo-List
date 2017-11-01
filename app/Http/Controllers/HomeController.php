@@ -23,6 +23,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $todos = TodoList::all();
+        return view('home',[
+            'todos' => $todos
+        ]);
     }
 }
